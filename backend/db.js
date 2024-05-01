@@ -23,8 +23,8 @@ const userTable = mongoose.Schema({
   },
 });
 
-const userModel = mongoose.model("User", userTable);
+const User = mongoose.model("User", userTable);
 
 module.exports = {
-  userModel,
+  User,
 };
