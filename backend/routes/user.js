@@ -4,7 +4,29 @@ const { User } = require("../db");
 const router = express.Router(); //router
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
+const { authHeader } = require("../middleware");
 
+const updateSchema = zod.object({
+  password: zod.string().optional(),
+  firstName: zod.string().optional(),
+  lastName: zod.string().optional(),
+});
+
+router.put("/profile", authHeader, async (req, res) => {
+  const { success } = updateSchema.safeParse(req.body);
+  if (!success) {
+    return res.status(403).json({
+      msg: "Error in input/updating",
+    });
+  }
+  await User.updateOne(req.body, {
+    id: req.userId,
+  });
+  res.status(200).json({
+    msg: "updated successfully",
+  });
+});
+//signup
 const signupSchema = zod.object({
   username: zod.string(),
   password: zod.string(),
@@ -38,7 +60,7 @@ router.post("/signup", async (res, req) => {
     JWT_SECRET
   );
 });
-
+//signin
 const signinSchema = zod.object({
   username: zod.string(),
   password: zod.string(),
