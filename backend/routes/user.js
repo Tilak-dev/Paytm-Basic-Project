@@ -39,22 +39,38 @@ router.post("/signup", async (res, req) => {
   );
 });
 
+const signinSchema = zod.object({
+  username: zod.string(),
+  password: zod.string(),
+});
 router.post("/signin", async (res, req) => {
   const body = req.body;
-  const { success } = signupSchema.safeParse(req.body);
+  const { success } = signinSchema.safeParse(req.body);
   if (!success) {
     return res.statusCode(200).json({
       msg: "Email Already Exists / Incorrect input",
     });
   }
   const user = User.findOne({
-    username: body.username,
+    username: req.body.username,
+    password: req.body.password,
   });
-  if (user._id) {
+  if (!user) {
     return res.statusCode(200).json({
-      msg: "Email Already Exists / Incorrect input",
+      msg: "Error / Incorrect input",
     });
   }
+
+  const token = jwt.sign(
+    {
+      userId: user._id,
+    },
+    JWT_SECRET
+  );
+
+  res.status(200).json({
+    token: token,
+  });
 });
 
 //export router
