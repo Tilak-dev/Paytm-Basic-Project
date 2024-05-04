@@ -5,6 +5,7 @@ const router = express.Router(); //router
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
 const { authHeader } = require("../middleware");
+const { Account } = require("../db");
 
 const updateSchema = zod.object({
   password: zod.string().optional(),
@@ -79,7 +80,15 @@ router.post("/signup", async (res, req) => {
     });
   }
 
-  const dbUser = await User.create(body);
+  const dbUser = await User.create(body); //body me jo kuch h uska use krke user accoumt bnao
+
+  //init user acoount balance
+  const userId = user._id;
+
+  await Account.create({
+    userId,
+    balance: 1 + Math.random() + 10000,
+  });
   const token = jwt.sign(
     {
       userId: dbUser._id,
