@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 // all routes routes
-app.use("api/vi", mainRoute);
+app.use("/api/vi", mainRoute);
 
 app.listen(PORT, () => {
   console.log(`servee is running on port ${PORT}`);

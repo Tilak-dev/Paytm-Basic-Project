@@ -4,7 +4,7 @@ const { User } = require("../db");
 const router = express.Router(); //router
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
-const { authHeader } = require("../middleware");
+const authHeader = require("../middleware");
 const { Account } = require("../db");
 
 const updateSchema = zod.object({
@@ -56,45 +56,53 @@ router.put("/profile", authHeader, async (req, res) => {
 });
 //signup
 const signupSchema = zod.object({
-  username: zod.string(),
+  userName: zod.string(),
   password: zod.string(),
   firstName: zod.string(),
   lastName: zod.string(),
 });
 
-router.post("/signup", async (res, req) => {
+//signup
+
+router.post("/signup", async (req, res) => {
   const body = req.body;
-  const { success } = signupSchema.safeParse(req.body);
+  const { success } = signupSchema.safeParse(body);
 
   if (!success) {
-    return res.statusCode(200).json({
-      msg: "Email Already Exists / Incorrect input",
+    return res.status(400).json({
+      msg: "Incorrect input",
     });
   }
-  const user = User.findOne({
-    username: body.username,
+  const existingUser = await User.findOne({
+    userName: body.userName,
   });
-  if (user._id) {
-    return res.statusCode(200).json({
-      msg: "Email Already Exists / Incorrect input",
+  if (existingUser) {
+    return res.status(400).json({
+      msg: "Email Already Exists",
     });
   }
 
   const dbUser = await User.create(body); //body me jo kuch h uska use krke user accoumt bnao
 
   //init user acoount balance
-  const userId = user._id;
+  const userId = dbUser._id;
 
   await Account.create({
     userId,
-    balance: 1 + Math.random() + 10000,
+    balance: 1 + Math.random() * 10000,
   });
+  console.log("b t")
   const token = jwt.sign(
     {
-      userId: dbUser._id,
+      userId: userId,
     },
     JWT_SECRET
   );
+  console.log("a t")
+  res.json({
+    msg: "user created success fully",
+    token: token,
+  });
 });
 //signin
 const signinSchema = zod.object({
@@ -105,7 +113,7 @@ router.post("/signin", async (res, req) => {
   const body = req.body;
   const { success } = signinSchema.safeParse(req.body);
   if (!success) {
-    return res.statusCode(200).json({
+    return res.status(200).json({
       msg: "Email Already Exists / Incorrect input",
     });
   }
@@ -114,7 +122,7 @@ router.post("/signin", async (res, req) => {
     password: req.body.password,
   });
   if (!user) {
-    return res.statusCode(200).json({
+    return res.status(200).json({
       msg: "Error / Incorrect input",
     });
   }

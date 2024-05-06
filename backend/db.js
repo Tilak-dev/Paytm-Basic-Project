@@ -7,19 +7,19 @@ mongoose.connect(url);
 const userTable = mongoose.Schema({
   //after finishing this i will add more functionality
   userName: {
-    typeof: String,
+    type: String,
     required: true,
   },
   firstName: {
-    typeof: String,
+    type: String,
     required: true,
   },
   lastName: {
-    typeof: String,
+    type: String,
     required: true,
   },
   password: {
-    typeof: String,
+    type: String,
     required: true,
   },
 });
@@ -28,17 +28,17 @@ const userTable = mongoose.Schema({
 const accountSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",//reference
-    required: true,
+    ref: "User", //reference
+    // required: true,
   },
   balance: {
     type: Number,
-    required: true,
+    // required: true,
   },
 });
 
 const User = mongoose.model("User", userTable);
-const Account = mongoose.model("Account",accountSchema)
+const Account = mongoose.model("Account", accountSchema);
 
 module.exports = {
   User,
